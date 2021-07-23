@@ -56,7 +56,7 @@ namespace SRTPluginProviderRER1
                 gameMemoryValues._enemyHealth = new GameEnemy[MAX_ENTITIES];
                 for (var i = 0; i < MAX_ENTITIES; i++)
                 {
-                    position = 0x4 + i;
+                    position = 0x4 * i;
                     PointerEnemy[i] = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressEnemy), 0x838, position);
                     gameMemoryValues._enemyHealth[i] = new GameEnemy();
                 }
