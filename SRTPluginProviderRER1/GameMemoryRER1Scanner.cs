@@ -7,7 +7,7 @@ namespace SRTPluginProviderRER1
 {
     internal unsafe class GameMemoryRER1Scanner : IDisposable
     {
-        private readonly int MAX_ENTITIES = 3;
+        private readonly int MAX_ENTITIES = 16;
         // Variables
         private ProcessMemoryHandler memoryAccess;
         private GameMemoryRER1 gameMemoryValues;
@@ -16,9 +16,10 @@ namespace SRTPluginProviderRER1
         public int ProcessExitCode => (memoryAccess != null) ? memoryAccess.ProcessExitCode : 0;
 
         // Pointer Address Variables
-        private int pointerAddressHP;
+        private int pointerAddressPlayer;
         private int pointerAddressStats;
         private int pointerAddressEnemy;
+        private int pointerAddressIGT;
 
         // Pointer Classes
         private IntPtr BaseAddress { get; set; }
@@ -26,6 +27,8 @@ namespace SRTPluginProviderRER1
         private MultilevelPointer[] PointerEnemy { get; set; }
         private MultilevelPointer PointerHP { get; set; }
         private MultilevelPointer PointerStats { get; set; }
+        private MultilevelPointer PointerInventory { get; set; }
+        private MultilevelPointer PointerIGT { get; set; }
 
         internal GameMemoryRER1Scanner(Process process = null)
         {
@@ -49,8 +52,10 @@ namespace SRTPluginProviderRER1
                 BaseAddress = NativeWrappers.GetProcessBaseAddress(pid, PInvoke.ListModules.LIST_MODULES_32BIT); // Bypass .NET's managed solution for getting this and attempt to get this info ourselves via PInvoke since some users are getting 299 PARTIAL COPY when they seemingly shouldn't.
                 
                 //POINTERS
-                PointerHP = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressHP), 0x44, 0x10);
+                PointerHP = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressPlayer), 0x44, 0x10);
+                PointerInventory = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressPlayer), 0x44, 0xF8);
                 PointerStats = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressStats));
+                PointerIGT = new MultilevelPointer(memoryAccess, IntPtr.Add(BaseAddress, pointerAddressIGT));
                 var position = 0;
                 PointerEnemy = new MultilevelPointer[MAX_ENTITIES];
                 gameMemoryValues._enemyHealth = new GameEnemy[MAX_ENTITIES];
@@ -66,14 +71,17 @@ namespace SRTPluginProviderRER1
         private void SelectPointerAddresses()
         {
             pointerAddressEnemy = 0xDE6184;
-            pointerAddressHP = 0xD6F394;
+            pointerAddressPlayer = 0xD6F394;
             pointerAddressStats = 0xD707E4;
+            pointerAddressIGT = 0xD70B60;
         }
 
         internal void UpdatePointers()
         {
             PointerHP.UpdatePointers();
+            PointerInventory.UpdatePointers();
             PointerStats.UpdatePointers();
+            PointerIGT.UpdatePointers();
             for (var i = 0; i < MAX_ENTITIES; i++)
             {
                 PointerEnemy[i].UpdatePointers();
@@ -82,16 +90,21 @@ namespace SRTPluginProviderRER1
 
         internal unsafe IGameMemoryRER1 Refresh()
         {
-            // Rebecca
-            gameMemoryValues._player = PointerHP.Deref<GamePlayer>(0xE3C);
+            // Player
+            gameMemoryValues._player = PointerHP.Deref<GamePlayer>(0x0);
+
+            // Player Inventory
+            gameMemoryValues._playerInventory = PointerInventory.Deref<GameInventory>(0x0);
 
             // Game Statistics
             gameMemoryValues._endResults = PointerStats.Deref<GameEndResults>(0x0);
 
-            //Enemy HP
+            gameMemoryValues._igt = PointerIGT.DerefFloat(0x2C);
+
+            // Enemy HP Array
             for (var i = 0; i < MAX_ENTITIES; i++)
             {
-                gameMemoryValues._enemyHealth[i] = PointerEnemy[i].Deref<GameEnemy>(0xE3C);
+                gameMemoryValues._enemyHealth[i] = PointerEnemy[i].Deref<GameEnemy>(0x0);
             }
 
             HasScanned = true;

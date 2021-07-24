@@ -1,38 +1,68 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace SRTPluginProviderRER1.Structs.GameStructs
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 0x8)]
-    [DebuggerDisplay("{_DebuggerDisplay,nq}")]
+    [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 0xE44)]
     public struct GameEnemy
     {
-        [FieldOffset(0x0)] private float currentHP;
-        [FieldOffset(0x4)] private float maximumHP;
+        [FieldOffset(0xE28)] private short id;
+        [FieldOffset(0xE3C)] private float currentHP;
+        [FieldOffset(0xE40)] private float maximumHP;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public string _DebuggerDisplay
+        public short ID => id;
+        public string Name => Enemies.NamesList.ContainsKey(ID) ? string.Format("{0}: ", Enemies.NamesList[ID]) : "";
+        public bool IsNaN(float hp) => hp.CompareTo(float.NaN) == 0;
+        public float CurrentHP => !IsNaN(currentHP) ? currentHP : 0f;
+        public float MaximumHP => !IsNaN(maximumHP) ? maximumHP : 0f;
+        public bool IsTrigger => !Enemies.NamesList.ContainsKey(ID);
+        public bool IsAlive => !IsTrigger && CurrentHP != 0;
+        public bool IsDamaged => IsAlive ? CurrentHP < MaximumHP : false;
+        public float Percentage => (IsAlive) ? CurrentHP / MaximumHP : 0f;
+    }
+
+    public class Enemies
+    {
+        public static Dictionary<short, string> NamesList = new Dictionary<short, string>()
         {
-            get
-            {
-                if (IsTrigger)
-                {
-                    return string.Format("TRIGGER", CurrentHP, MaximumHP, Percentage);
-                }
-                else if (IsAlive)
-                {
-                    return string.Format("{0} / {1} ({2:P1})", CurrentHP, MaximumHP, Percentage);
-                }
-                return "DEAD / DEAD (0%)";
-            }
-        }
-
-        public float CurrentHP => currentHP;
-        public float MaximumHP => maximumHP;
-        public bool IsTrigger => MaximumHP <= 10f || MaximumHP > 100000f;
-        public bool IsNaN => MaximumHP.CompareTo(float.NaN) == 0;
-        public bool IsAlive => !IsNaN && !IsTrigger && CurrentHP <= MaximumHP;
-        public bool IsDamaged => IsAlive && CurrentHP < MaximumHP;
-        public float Percentage => ((IsAlive) ? CurrentHP / MaximumHP : 0f);
+            { 0x1000, "Mutated Ooze" },
+            { 0x1010, "Claw Ooze" },
+            { 0x1020, "Shooter Ooze" },
+            { 0x1030, "Explode Ooze" },
+            { 0x1060, "Rachael Ooze" },
+            { 0x1070, "Mutated Ooze" },
+            { 0x1080, "Claw Ooze" },
+            { 0x1090, "Shooter Ooze" },
+            { 0x1200, "Sea Creeper" },
+            { 0x1201, "Sea Creeper" },
+            { 0x1210, "Mutated Dog" },
+            { 0x1211, "Mutated Dog" },
+            { 0x1220, "Fish" },
+            { 0x1221, "Blowfish" },
+            { 0x1230, "Green Hunter" },
+            { 0x1240, "Invisible Hunter" },
+            { 0x1300, "Scarmiglione" },
+            { 0x1301, "Scarmiglione" },
+            { 0x1310, "Beach Blob" },
+            { 0x1320, "Beach Blob" },
+            { 0x1330, "LowPoly Beach Blob" },
+            { 0x1400, "Scragdead" },
+            { 0x1401, "Scragdead" },
+            { 0x1410, "Wall Blister" },
+            { 0x1420, "Draghignazzo" },
+            { 0x1421, "Draghignazzo" },
+            { 0x1422, "Draghignazzo" },
+            { 0x1430, "Malacoda" },
+            { 0x1431, "Malacoda" },
+            { 0x1440, "Jack" },
+            { 0x1442, "Jack" },
+            { 0x1450, "Jack" },
+            { 0x1910, "Zenobia" },
+            { 0x1911, "Zenobia" },
+            { 0x1912, "Zenobia" },
+            { 0x1913, "Zenobia" },
+            { 0x1920, "Zenobia" }
+        };
     }
 }

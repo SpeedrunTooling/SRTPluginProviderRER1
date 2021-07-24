@@ -7,14 +7,13 @@ namespace SRTPluginProviderRER1.Structs.GameStructs
 
     public struct GameEndResults
     {
-        [FieldOffset(0x34)] private int rank;
         [FieldOffset(0x38)] private int rankScore;
         [FieldOffset(0x6B8)] private int shotsFired;
         [FieldOffset(0x6BC)] private int enemiesHit;
         [FieldOffset(0x6C0)] private int deaths;
         [FieldOffset(0x6DC)] private float clearTime;
 
-        public int Rank => rank;
+        public int Rank => (int)Math.Floor((decimal)rankScore / 1000);
         public int RankScore => rankScore;
         public int ShotsFired => shotsFired;
         public int EnemiesHit => enemiesHit;

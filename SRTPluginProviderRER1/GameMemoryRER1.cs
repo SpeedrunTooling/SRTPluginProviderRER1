@@ -18,13 +18,36 @@ namespace SRTPluginProviderRER1
         public GamePlayer Player { get => _player; set => _player = value; }
         internal GamePlayer _player;
 
+        public GameInventory PlayerInventory { get => _playerInventory; set => _playerInventory = value; }
+        internal GameInventory _playerInventory;
+
         public GameEnemy[] EnemyHealth { get => _enemyHealth; set => _enemyHealth = value; }
         internal GameEnemy[] _enemyHealth;
 
         public GameEndResults EndResults { get => _endResults; set => _endResults = value; }
         internal GameEndResults _endResults;
 
+        public float IGT { get => _igt; set => _igt = value; }
+        internal float _igt;
+
         public TimeSpan IGTTimeSpan
+        {
+            get
+            {
+                TimeSpan timespanIGT;
+
+                if (IGT >= 0f)
+                    timespanIGT = TimeSpan.FromSeconds(IGT);
+                else
+                    timespanIGT = new TimeSpan();
+
+                return timespanIGT;
+            }
+        }
+
+        public string IGTFormattedString => IGTTimeSpan.ToString(IGT_TIMESPAN_STRING_FORMAT, CultureInfo.InvariantCulture);
+
+        public TimeSpan SegmentTimeSpan
         {
             get
             {
@@ -39,6 +62,6 @@ namespace SRTPluginProviderRER1
             }
         }
 
-        public string IGTFormattedString => IGTTimeSpan.ToString(IGT_TIMESPAN_STRING_FORMAT, CultureInfo.InvariantCulture);
+        public string SegmentFormattedString => SegmentTimeSpan.ToString(IGT_TIMESPAN_STRING_FORMAT, CultureInfo.InvariantCulture);
     }
 }

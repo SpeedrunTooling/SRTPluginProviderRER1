@@ -10,11 +10,15 @@ namespace SRTPluginProviderRER1
         string VersionInfo { get; }
 
         GamePlayer Player { get; set; }
+        GameInventory PlayerInventory { get; set; }
         GameEnemy[] EnemyHealth { get; set; }
         GameEndResults EndResults { get; set; }
+        float IGT { get; set; }
 
         TimeSpan IGTTimeSpan { get; }
         string IGTFormattedString { get; }
+        TimeSpan SegmentTimeSpan { get; }
+        string SegmentFormattedString { get; }
 
     }
 }
