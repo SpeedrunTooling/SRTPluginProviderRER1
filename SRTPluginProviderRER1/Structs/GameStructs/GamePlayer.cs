@@ -26,6 +26,8 @@ namespace SRTPluginProviderRER1.Structs.GameStructs
                 Percentage >= 0.25f ? PlayerState.Caution :
                 PlayerState.Danger;
         }
+
+        public string CurrentHealthState => HealthState.ToString();
     }
 
     public class Characters
